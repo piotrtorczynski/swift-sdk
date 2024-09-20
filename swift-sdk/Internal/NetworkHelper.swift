@@ -57,7 +57,6 @@ struct NetworkHelper {
                                usingSession networkSession: NetworkSessionProtocol) -> Pending<T, NetworkError> {
         
         let requestId = IterableUtil.generateUUID()
-        #if NETWORK_DEBUG
         print()
         print("====================================================>")
         print("sending request: \(request)")
@@ -74,8 +73,7 @@ struct NetworkHelper {
         }
         print("====================================================>")
         print()
-        #endif
-        
+
         let fulfill = Fulfill<T, NetworkError>()
             
         func sendRequestWithRetries(request: URLRequest, requestId: String, retriesLeft: Int) {
@@ -94,10 +92,8 @@ struct NetworkHelper {
         }
         
         func handleSuccess(requestId: String, value: T) {
-            #if NETWORK_DEBUG
             print("request with id: \(requestId) successfully sent, response:")
             print(value)
-            #endif
             fulfill.resolve(with: value)
         }
         
@@ -105,10 +101,8 @@ struct NetworkHelper {
             if shouldRetry(error: error, retriesLeft: retriesLeft) {
                 retryRequest(requestId: requestId, request: request, error: error, retriesLeft: retriesLeft)
             } else {
-                #if NETWORK_DEBUG
                 print("request with id: \(requestId) errored")
                 print(error)
-                #endif
                 fulfill.reject(with: error)
             }
             
@@ -119,10 +113,8 @@ struct NetworkHelper {
         }
         
         func retryRequest(requestId: String, request: URLRequest, error: NetworkError, retriesLeft: Int) {
-            #if NETWORK_DEBUG
             print("retry attempt: \(maxRetryCount-retriesLeft+1) for url: \(request.url?.absoluteString ?? "")")
             print(error)
-            #endif
             
             var delay: DispatchTimeInterval = .seconds(0)
             if retriesLeft <= 3 {
